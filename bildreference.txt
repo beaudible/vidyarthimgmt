@@ -1,0 +1,201 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'jacoco'
+    id 'checkstyle'
+    id "org.sonarqube" version "3.3"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
+}
+
+group = 'com.finx.paymentservice'
+version = '1.0-SNAPSHOT'
+description = 'Payment Microservice'
+
+project.ext {
+    mainClass = 'com.finx.paymentservice.PaymentServiceApplication'
+}
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+sourceSets {
+    componentTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/component-test/java')
+        }
+        resources.srcDir file('src/component-test/resources')
+    }
+}
+
+configurations {
+    componentTestImplementation.extendsFrom testImplementation
+    componentTestRuntime.extendsFrom testRuntime
+}
+
+task componentTest(type: Test) {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "failed", "skipped")
+    }
+    description = "Runs component tests"
+    testClassesDirs = sourceSets.componentTest.output.classesDirs
+    classpath = sourceSets.componentTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+}
+
+processComponentTestResources {
+    duplicatesStrategy = 'include'
+}
+
+check.dependsOn componentTest
+componentTest.mustRunAfter test
+
+repositories {
+    mavenLocal()
+    maven {
+        url "https://nexus.nonprod.galaxyfinx.in/repository/gradle-artifacts"
+    }
+    mavenCentral()
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+    }
+}
+dependencies {
+    implementation platform(libVersion.dropwizardBom)
+    implementation platform(libVersion.guiceyBom)
+
+    implementation 'io.dropwizard:dropwizard-core'
+    implementation 'io.dropwizard:dropwizard-client'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
+    implementation 'jakarta.validation:jakarta.validation-api'
+    implementation 'org.hibernate.validator:hibernate-validator'
+    implementation 'io.dropwizard:dropwizard-jdbi3'
+    implementation 'io.dropwizard:dropwizard-migrations'
+    implementation 'org.jdbi:jdbi3-postgres'
+    implementation 'org.jdbi:jdbi3-jackson2'
+    implementation libVersion.webUtil
+
+    implementation libVersion.springKafka
+    implementation libVersion.kafkaClient
+    implementation('io.dropwizard.modules:dropwizard-kafka:1.8.0') {
+        exclude group: "org.apache", module: "kafka-clients"
+    }
+    implementation 'io.confluent:kafka-json-serializer:7.2.1'
+
+    implementation 'ru.vyarus:dropwizard-guicey'
+    implementation 'ru.vyarus.guicey:guicey-jdbi3'
+    implementation libVersion.mapstruct
+    annotationProcessor libVersion.mapstructProcessor
+    implementation libVersion.lombok
+    annotationProcessor libVersion.lombok
+    implementation 'org.projectlombok:lombok-mapstruct-binding:0.1.0'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.1.0'
+
+    implementation libVersion.swaggerCore
+    implementation libVersion.swaggerJaxrs2
+    implementation libVersion.swaggerIntegration
+
+    implementation libVersion.snakeyaml
+    implementation libVersion.dropwizardSwagger
+    implementation libVersion.feignOkHttp
+    implementation libVersion.feignJackson
+    implementation libVersion.feignSlf4j
+    implementation libVersion.libPhonenumber
+    implementation libVersion.redisClient
+    implementation libVersion.awaitility
+
+    implementation libVersion.otpClient
+    implementation libVersion.hawkAiClient
+    implementation libVersion.episodeSixClient
+
+    runtimeOnly libVersion.postgresql
+
+    testImplementation platform(libVersion.testContainersBom)
+    testImplementation("io.dropwizard:dropwizard-testing") {
+        exclude group: "junit", module: "junit"
+    }
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testImplementation("org.mockito:mockito-core")
+    testImplementation("org.mockito:mockito-junit-jupiter")
+    testImplementation("org.assertj:assertj-core")
+    testImplementation libVersion.wiremock
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
+
+    testImplementation libVersion.archunit
+    testImplementation libVersion.testutil
+
+    componentTestImplementation platform(libVersion.testContainersBom)
+    componentTestImplementation(libVersion.postgresql)
+    componentTestImplementation("org.testcontainers:junit-jupiter")
+    componentTestImplementation("org.testcontainers:postgresql")
+    componentTestImplementation 'org.junit.platform:junit-platform-launcher'
+    componentTestImplementation libVersion.springKafkaTest
+}
+
+shadowJar {
+    mergeServiceFiles()
+    exclude 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/*.SF'
+    manifest {
+        attributes 'Main-Class': mainClass
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+
+test.finalizedBy jacocoTestReport
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "failed", "skipped")
+    }
+}
+
+tasks.withType(Checkstyle) {
+    configFile file('./codequality/checkstyle.xml')
+    checkstyleMain.source = "src/main/java"
+    checkstyleTest.enabled = false
+    checkstyleComponentTest.enabled = false
+}
+
+build.finalizedBy shadowJar
+
+sonarqube {
+    properties {
+        property "sonar.exclusions", "**/CoreBankingSystemRetryableException.java, **/PaymentServiceApplication.java"
+    }
+}
+
+abstract class ServiceJarSizeTask extends DefaultTask {
+    @TaskAction
+    def serviceJarSize() {
+        def jarPath = project.buildDir.absolutePath + "/libs/${project.rootProject.name}-${project.version}-all.jar"
+        def jarFile = project.file(jarPath)
+        def jarSizeInMbs = (jarFile.length() / (1024 * 1024)).round(2)
+        def maxJarSizeInMbs = 70
+        if (jarSizeInMbs > maxJarSizeInMbs) {
+            throw new GradleException("Service executable JAR size is $jarSizeInMbs Mb. The max allowed JAR size is $maxJarSizeInMbs Mb")
+        } else {
+            println "Service executable JAR size is $jarSizeInMbs Mb. It is below the current max jar size limit $maxJarSizeInMbs Mb"
+        }
+    }
+}
+
+tasks.register('serviceJarSize', ServiceJarSizeTask)
+
+shadowJar.finalizedBy serviceJarSize
