@@ -34,7 +34,7 @@ jobs:
         with:
           arguments: build
       - name: Configure aws credential
-        user: aws-action/configure-aws-credentials@v1
+        uses: aws-action/configure-aws-credentials@v1
         with:
           aws-access-key-id: $
           aws-secret-access-key: $
