@@ -46,5 +46,5 @@ jobs:
         env:
           ECR_URL: '039016935536.dkr.ecr.ap-south-1.amazonaws.com/vidhyarthi'
         run: |
-          docker build -t vidyarthi/vidyarthi/vidyarthi .
-          docker push vidyarthi/vidyarthi/vidyarthi
+          docker build -t '039016935536.dkr.ecr.ap-south-1.amazonaws.com/vidhyarthi' .
+          docker push '039016935536.dkr.ecr.ap-south-1.amazonaws.com/vidhyarthi'
