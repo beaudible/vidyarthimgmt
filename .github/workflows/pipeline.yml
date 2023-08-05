@@ -44,7 +44,9 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
       - name: Build, tag, and push image to Amazon ECR
         env:
-          ECR_URL: '039016935536.dkr.ecr.ap-south-1.amazonaws.com/vidhyarthi'
+          ECR_REGISTRY: ${{ env.ecr_registry }}
+          ECR_REPOSITORY: vidhyarthi
+          IMAGE_TAG: vidhyarthi
         run: |
-          docker build -t '039016935536.dkr.ecr.ap-south-1.amazonaws.com/vidhyarthi' .
-          docker push '039016935536.dkr.ecr.ap-south-1.amazonaws.com/vidhyarthi'
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_TAG
