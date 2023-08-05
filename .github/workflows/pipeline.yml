@@ -44,9 +44,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
       - name: Build, tag, and push image to Amazon ECR
         env:
-          ECR_REGISTRY: $
-          ECR_REPOSITORY: vidhyarthi
-          IMAGE_TAG: vidhyarthi
+          ECR_URL: ${{ steps.login-ecr.outputs.registry }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_TAG
