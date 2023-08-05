@@ -1,1 +1,9 @@
 rootProject.name = 'vidyarthimgmt'
+
+//dependencyResolutionManagement {
+//    versionCatalogs {
+//        libVersion {
+//            from(files("./libs.versions.toml"))
+//        }
+//    }
+//}
