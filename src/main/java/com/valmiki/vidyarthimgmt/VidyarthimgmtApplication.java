@@ -10,4 +10,6 @@ public class VidyarthimgmtApplication {
     public static void main(String[] args) {
         SpringApplication.run(VidyarthimgmtApplication.class, args);
     }
+
+
 }
