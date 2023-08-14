@@ -22,9 +22,6 @@ import lombok.ToString;
 @Table(name = "vidyarthi")
 public class Vidyarthi {
 
-    /**
-     * define fields
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
