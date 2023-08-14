@@ -1,16 +1,17 @@
 package com.valmiki.vidyarthimgmt.service;
 
-import com.valmiki.vidyarthimgmt.entity.Vidyarthi;
+import com.valmiki.vidyarthimgmt.dto.request.VidyarthiRequest;
+import com.valmiki.vidyarthimgmt.dto.response.VidyarthiResponse;
 
 import java.util.List;
 
-public interface VidyarthiService{
+public interface VidyarthiService {
 
+    List<VidyarthiResponse> findAll();
 
-    List<Vidyarthi> findAll();
+    VidyarthiResponse findByID(int theId);
 
-        Vidyarthi findById(int theId);
-        Vidyarthi save (Vidyarthi theVidyarthi);
+    VidyarthiResponse save(VidyarthiRequest vidyarthiRequest);
 
-        void deleteById(int theId);
+    VidyarthiResponse deleteById(int theId);
 }
