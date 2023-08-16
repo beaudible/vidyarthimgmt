@@ -13,15 +13,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class VidyarthiServiceImpl  implements VidyarthiService {
+public class VidyarthiServiceImpl implements VidyarthiService {
     @Autowired
     private VidyarthiRepository vidyarthiRepository;
 
     @Override
     public List<VidyarthiResponse> findAll() {
         List<Vidyarthi> vidyarthiList = vidyarthiRepository.findAll();
-        // TODO: Remove below code and use mapstruct for mapping
-        // TODO: And also use records for dtos
+
         return vidyarthiList.stream()
                 .map(e -> VidyarthiResponse.builder()
                         .id(e.getId())

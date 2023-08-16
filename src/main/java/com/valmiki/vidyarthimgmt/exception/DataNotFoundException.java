@@ -3,8 +3,8 @@ package com.valmiki.vidyarthimgmt.exception;
 public class DataNotFoundException extends  RuntimeException {
 
 
-    private static final String message = "Data not found";
+     private static final String MESSAGE = "Data Not Found";
     public DataNotFoundException() {
-        super(message);
+        super(MESSAGE);
     }
 }
