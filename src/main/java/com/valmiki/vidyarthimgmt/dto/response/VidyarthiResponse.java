@@ -1,10 +1,13 @@
 package com.valmiki.vidyarthimgmt.dto.response;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 @Builder
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString
 public class VidyarthiResponse {
 
     private int id;
@@ -14,4 +17,5 @@ public class VidyarthiResponse {
     private String lastName;
 
     private String email;
+
 }

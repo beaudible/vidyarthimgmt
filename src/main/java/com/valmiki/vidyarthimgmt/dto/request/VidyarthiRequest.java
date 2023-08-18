@@ -1,9 +1,13 @@
 package com.valmiki.vidyarthimgmt.dto.request;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+
 @Builder
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString
 public class VidyarthiRequest {
 
     private int id;
